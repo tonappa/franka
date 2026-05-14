@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/ros/franka/install/setup.sh
