@@ -3,7 +3,7 @@
   <name>franka_softhand_moveit_config</name>
   <version>0.3.0</version>
   <description>
-     An automatically generated package with all the configuration and launch files for using the franka_softhand with the MoveIt Motion Planning Framework
+     An automatically generated package with all the configuration and launch files for using the franka_softhand with the MoveIt Motion Planning Framework. Istituto Italiano di Tecnologia.
   </description>
   <author email="do.park@iit.it">Do Won Park</author>
   <maintainer email="do.park@iit.it">Do Won Park</maintainer>
