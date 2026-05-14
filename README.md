@@ -1,32 +1,32 @@
 # Franka Panda + qbSoftHand — ROS Noetic (Docker)
 
-Workspace ROS Noetic per il controllo del robot Franka Panda con MoveIt e qbSoftHand come end effector.
+Workspace for controlling the Franka Panda robot with MoveIt and qbSoftHand as end effector, running on ROS Noetic inside Docker.
 
-> **Nota:** richiede un PC con GPU NVIDIA.
-
----
-
-## Requisiti
-
-- Linux con driver NVIDIA installati (`nvidia-smi` deve funzionare)
-- Docker Engine e Docker Compose installati
-- Sessione grafica X11 attiva sul host (`DISPLAY=:0`)
-- Utente nei gruppi `audio` e `video`
+> **Note:** requires a PC with an NVIDIA GPU.
 
 ---
 
-## 1. Clona la repository
+## Requirements
+
+- Linux with NVIDIA drivers installed (`nvidia-smi` must work)
+- Docker Engine and Docker Compose installed
+- Active X11 graphical session on the host (`DISPLAY=:0`)
+- User in the `audio` and `video` groups
+
+---
+
+## 1. Clone the repository
 
 ```bash
 git clone --recurse-submodules -b softhand git@github.com:tonappa/franka.git
 cd franka
 ```
 
-Il flag `--recurse-submodules` scarica automaticamente anche i pacchetti esterni:
-- `src/utils/qbdevice-ros` (con i suoi submodule interni)
+The `--recurse-submodules` flag automatically downloads the external packages:
+- `src/utils/qbdevice-ros` (including its nested submodules)
 - `src/utils/qbhand-ros`
 
-Se hai già clonato senza `--recurse-submodules`, recupera i submodule con:
+If you already cloned without `--recurse-submodules`, fetch the submodules with:
 
 ```bash
 git submodule update --init --recursive
@@ -34,29 +34,29 @@ git submodule update --init --recursive
 
 ---
 
-## 2. Build dell'immagine Docker
+## 2. Build the Docker image
 
 ```bash
 ./run_docker.sh build
 ```
 
-Installa ROS Noetic con i pacchetti per Franka, MoveIt e i controller.
+This installs ROS Noetic with Franka, MoveIt, and controller packages.
 
 ---
 
-## 3. Avvia il container
+## 3. Run the container
 
 ```bash
 ./run_docker.sh run
 ```
 
-Il container monta il workspace in `/home/ros/franka`, forwarda la GUI via X11 e abilita la GPU NVIDIA.
+The container mounts the workspace at `/home/ros/franka`, forwards the GUI via X11, and enables the NVIDIA GPU.
 
 ---
 
-## 4. Build del workspace catkin
+## 4. Build the catkin workspace
 
-Dentro il container:
+Inside the container:
 
 ```bash
 catkin build
@@ -65,7 +65,7 @@ source devel/setup.bash
 
 ---
 
-## 5. Ferma il container
+## 5. Stop the container
 
 ```bash
 ./run_docker.sh down
@@ -73,18 +73,18 @@ source devel/setup.bash
 
 ---
 
-## Struttura del progetto
+## Project structure
 
 ```
 franka/
 ├── docker/
-│   ├── Dockerfile          # Immagine ROS Noetic con Franka + MoveIt
-│   ├── entrypoint.sh       # Sourcing automatico dell'ambiente ROS
-│   └── requirements.txt    # Dipendenze Python (opzionali)
+│   ├── Dockerfile          # ROS Noetic image with Franka + MoveIt
+│   ├── entrypoint.sh       # Automatic ROS environment sourcing
+│   └── requirements.txt    # Python dependencies (optional)
 ├── src/
 │   └── utils/
-│       ├── qbdevice-ros/   # Driver qbrobotics (submodule)
-│       └── qbhand-ros/     # Pacchetti qbSoftHand (submodule)
+│       ├── qbdevice-ros/   # qbrobotics driver (submodule)
+│       └── qbhand-ros/     # qbSoftHand packages (submodule)
 ├── docker-compose.yaml
 └── run_docker.sh
 ```
