@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!--
+  URDF top-level per la hand-eye calibration (eye-to-hand).
+  Wrap dell'URDF Franka+SoftHand esistente con l'aggiunta di una RealSense D435i
+  fissata a "world" con una posa iniziale di guess (vedi config/camera_pose.yaml).
+  La posa esatta viene determinata dalla calibrazione.
+-->
+<robot name="franka_softhand" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="arm_id"         default="panda"/>
+  <xacro:arg name="hand_namespace" default="qbhand"/>
+
+  <!-- Robot base (Franka + qbSoftHand). Definisce gia' il link "world". -->
+  <xacro:include filename="$(find franka_softhand_description)/urdf/franka_softhand.urdf.xacro"/>
+
+  <!-- Macro RealSense D435i (fornisce link "camera_link" e frame ottici). -->
+  <xacro:include filename="$(find realsense2_description)/urdf/_d435i.urdf.xacro"/>
+
+  <!-- Posa iniziale camera rispetto a world (guess). -->
+  <xacro:property name="cam_pose"
+                  value="${xacro.load_yaml('$(find franka_softhand_handeye)/config/camera_pose.yaml')['camera_pose']}"/>
+
+  <xacro:sensor_d435i parent="world" name="camera" use_nominal_extrinsics="true">
+    <origin xyz="${cam_pose['x']} ${cam_pose['y']} ${cam_pose['z']}"
+            rpy="${cam_pose['roll']} ${cam_pose['pitch']} ${cam_pose['yaw']}"/>
+  </xacro:sensor_d435i>
+
+</robot>

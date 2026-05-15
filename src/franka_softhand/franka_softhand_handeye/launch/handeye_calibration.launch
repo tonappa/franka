@@ -1,0 +1,51 @@
+<launch>
+  <!--
+    Hand-eye calibration (eye-to-hand) per Franka+SoftHand con RealSense D435i
+    montata in posizione fissa nel mondo.
+
+    Avvia: franka_control + qbSoftHand + RealSense + MoveIt + RViz con il pannello
+    moveit_calibration (da aggiungere a runtime: Panels -> Add New Panel -> HandEyeCalibration).
+
+    Esempio:
+      roslaunch franka_softhand_handeye handeye_calibration.launch \
+                robot_ip:=172.16.0.2
+  -->
+
+  <arg name="robot_ip" doc="IP del controller Franka"/>
+  <arg name="arm_id"         default="panda"/>
+  <arg name="hand_namespace" default="qbhand"/>
+  <arg name="pipeline"       default="ompl"/>
+  <arg name="use_rviz"       default="true"/>
+
+  <!-- ===== Franka + SoftHand bringup con URDF che include la camera ===== -->
+  <include file="$(find franka_softhand_bringup)/launch/franka_softhand.launch">
+    <arg name="robot_ip"       value="$(arg robot_ip)"/>
+    <arg name="arm_id"         value="$(arg arm_id)"/>
+    <arg name="hand_namespace" value="$(arg hand_namespace)"/>
+    <arg name="robot_description_xacro"
+         value="$(find franka_softhand_handeye)/urdf/franka_softhand_handeye.urdf.xacro"/>
+  </include>
+
+  <!-- ===== MoveIt (move_group + controllers + planning scene) ===== -->
+  <include file="$(find franka_softhand_bringup)/launch/franka_softhand_moveit.launch">
+    <arg name="pipeline"   value="$(arg pipeline)"/>
+    <arg name="use_rviz"   value="false"/>
+    <arg name="load_scene" value="true"/>
+  </include>
+
+  <!-- ===== Intel RealSense D435i ===== -->
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+    <arg name="camera"             value="camera"/>
+    <arg name="enable_pointcloud"  value="true"/>
+    <arg name="align_depth"        value="true"/>
+  </include>
+
+  <!-- ===== RViz =====
+       Carica la config MoveIt standard. Per la calibrazione, una volta aperto:
+         Displays -> Add -> moveit_calibration -> HandEyeCalibration
+       (poi salvare la config con File -> Save Config se la si vuole permanente). -->
+  <node if="$(arg use_rviz)" name="rviz" pkg="rviz" type="rviz"
+        args="-d $(find franka_softhand_moveit_config)/launch/moveit.rviz"
+        output="screen"/>
+
+</launch>
