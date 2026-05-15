@@ -1,0 +1,41 @@
+# Parametri utili del setup Franka + qbSoftHand.
+# Letto da:
+#   - franka_softhand.urdf.xacro       (chiave: base_pose)
+#   - franka_softhand_scene/load_scene (chiave: scene)
+
+# ---- Posa di panda_link0 rispetto al frame "world" ----
+base_pose:
+  x: 0.0
+  y: 0.0
+  z: 0.025          # 2.5 cm sopra world
+  roll:  0.0
+  pitch: 0.0
+  yaw:   0.0
+
+# ---- Planning scene statica di MoveIt ----
+# Convenzione: pose = [x, y, z] del CENTRO del box (m); size = [sx, sy, sz] (m).
+# color (opzionale): [r, g, b, a] in [0,1]. Se assente, MoveIt usa il default.
+scene:
+  frame_id: "world"
+  objects:
+    - name: "robot_base_block"
+      type: "box"
+      size: [0.27, 0.27, 0.025]
+      pose: [-0.04, 0.0, 0.0125]    # riempie i 2.5 cm sotto la base del robot
+      color: [0.8, 0.8, 0.8, 1.0] # grigio
+
+    - name: "table"
+      type: "box"
+      size: [0.75, 0.75, 0.04]
+      pose: [0.2, 0.0, -0.02]     # top a z=0, spessore 4 cm
+      color: [0.8, 0.8, 0.8, 1.0]  # grigio
+
+  # Coppie di collisione consentite (ACM): [link_o_oggetto, link_o_oggetto].
+  # Usato per i "supporti" del robot che toccano la base.
+  allowed_collisions:
+    - ["panda_link0",    "robot_base_block"]
+    - ["panda_link0_sc", "robot_base_block"]
+    - ["panda_link1_sc", "robot_base_block"]
+    - ["panda_link0",    "table"]
+    - ["panda_link0_sc", "table"]
+    - ["panda_link1_sc", "table"]

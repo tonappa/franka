@@ -1,0 +1,21 @@
+<launch>
+  <!-- Carica la planning scene statica nel move_group.
+       Il loader attende /get_planning_scene quindi l'ordine non conta. -->
+
+  <arg name="scene_config"
+       default="$(find franka_softhand_bringup)/config/franka_softhand.yaml"
+       doc="YAML unificato; viene letta la chiave 'scene' (frame_id + objects)"/>
+  <arg name="clear_first" default="true"
+       doc="Se true, rimuove tutti gli oggetti esistenti prima di aggiungere i nuovi"/>
+
+  <node name="franka_softhand_scene_loader"
+        pkg="franka_softhand_scene"
+        type="load_scene.py"
+        output="screen"
+        required="false">
+    <!-- Carica l'intero YAML nel namespace privato del nodo;
+         lo script legge ~scene/frame_id e ~scene/objects. -->
+    <rosparam command="load" file="$(arg scene_config)"/>
+    <param name="clear_first" value="$(arg clear_first)"/>
+  </node>
+</launch>
