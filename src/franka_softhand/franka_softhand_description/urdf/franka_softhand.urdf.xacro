@@ -21,10 +21,14 @@
                       joint_limits="${xacro.load_yaml('$(find franka_description)/robots/panda/joint_limits.yaml')}">
   </xacro:franka_robot>
 
-  <!-- World frame: radice TF del robot. panda_link0 fissato a world. -->
+  <!-- World frame: radice TF del robot. panda_link0 fissato a world.
+       Posa caricata da franka_softhand_bringup/config/robot_pose.yaml. -->
+  <xacro:property name="base_pose"
+                  value="${xacro.load_yaml('$(find franka_softhand_bringup)/config/franka_softhand.yaml')['base_pose']}"/>
   <link name="world"/>
   <joint name="world_to_$(arg arm_id)_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <origin xyz="${base_pose['x']} ${base_pose['y']} ${base_pose['z']}"
+            rpy="${base_pose['roll']} ${base_pose['pitch']} ${base_pose['yaw']}"/>
     <parent link="world"/>
     <child  link="$(arg arm_id)_link0"/>
   </joint>
