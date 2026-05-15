@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>franka_softhand_bringup</name>
+  <version>0.1.0</version>
+  <description>Bringup launch files for Franka Panda + qbSoftHand. Istituto Italiano di Tecnologia.</description>
+  <author email="do.park@iit.it">Do Won Park</author>
+  <maintainer email="do.park@iit.it">Do Won Park</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>franka_softhand_description</exec_depend>
+  <exec_depend>franka_control</exec_depend>
+  <exec_depend>qb_hand_control</exec_depend>
+  <exec_depend>qb_device_driver</exec_depend>
+  <exec_depend>qb_device_bringup</exec_depend>
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>franka_softhand_scene</exec_depend>
+
+  <export>
+    <architecture_independent/>
+  </export>
+</package>

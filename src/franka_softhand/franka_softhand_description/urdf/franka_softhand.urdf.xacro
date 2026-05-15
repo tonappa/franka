@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<robot name="franka_softhand" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Franka Panda arm (no gripper) -->
+  <xacro:include filename="$(find franka_description)/robots/common/franka_robot.xacro"/>
+  <!-- Macro qbSoftHand -->
+  <xacro:include filename="$(find qb_hand_description)/urdf/qbhand.utils.xacro"/>
+
+  <!-- Materiale mancante in qbhand.materials.xacro: la flangia 90 gradi
+       cerca 'qbhand/90_deg_flange_base'. Lo definiamo uguale agli altri
+       (grigio standard qb) per togliere il warning e uniformare il colore. -->
+  <material name="qbhand/90_deg_flange_base">
+    <color rgba="0.35 0.35 0.35 1.0"/>
+  </material>
+
+  <xacro:arg name="arm_id"           default="panda"/>
+  <xacro:arg name="hand_namespace"   default="qbhand"/>
+  <xacro:arg name="gazebo"           default="false"/>
+
+  <xacro:franka_robot arm_id="$(arg arm_id)"
+                      joint_limits="${xacro.load_yaml('$(find franka_description)/robots/panda/joint_limits.yaml')}">
+  </xacro:franka_robot>
+
+  <!-- World frame: radice TF del robot. panda_link0 fissato a world. -->
+  <link name="world"/>
+  <joint name="world_to_$(arg arm_id)_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="world"/>
+    <child  link="$(arg arm_id)_link0"/>
+  </joint>
+
+  <!--
+    qbSoftHand con flangia a 90 gradi montata su panda_link8.
+    Offset preso dall'esempio panda_softhand (stesso hardware di montaggio):
+      xyz="0.045 0 0.035"  rpy="1.57 0 1.57"
+  -->
+  <xacro:build_hand_from_yaml_with_90_deg_flange
+      namespace="$(arg hand_namespace)"
+      parent="$(arg arm_id)_link8"
+      parent_link_suffix=""
+      configuration="qbhand_right">
+    <origin xyz="0.045 0 0.035" rpy="1.57 0 1.57"/>
+  </xacro:build_hand_from_yaml_with_90_deg_flange>
+
+  <!-- End-effector frame (TCP) della softhand, riferito a panda_link8 -->
+  <joint name="$(arg hand_namespace)_ee_joint" type="fixed">
+    <origin xyz="0.21 -0.05 0.065" rpy="0 0 0"/>
+    <parent link="$(arg arm_id)_link8"/>
+    <child  link="$(arg hand_namespace)_tcp"/>
+  </joint>
+  <link name="$(arg hand_namespace)_tcp"/>
+
+</robot>

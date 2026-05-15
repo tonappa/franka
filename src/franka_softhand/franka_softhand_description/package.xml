@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>franka_softhand_description</name>
+  <version>0.1.0</version>
+  <description>URDF description for Franka Panda arm with 90-degree flange and qbSoftHand. Istituto Italiano di Tecnologia.</description>
+  <author email="do.park@iit.it">Do Won Park</author>
+  <maintainer email="do.park@iit.it">Do Won Park</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>franka_description</exec_depend>
+  <exec_depend>qb_hand_description</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+
+  <export>
+    <architecture_independent/>
+  </export>
+</package>

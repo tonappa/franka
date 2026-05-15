@@ -1,0 +1,31 @@
+<launch>
+  <!-- Spawns MoveIt-side controllers, starts move_group and (optionally) RViz.
+       Run AFTER franka_softhand.launch. -->
+
+  <arg name="use_rviz" default="true"/>
+  <arg name="pipeline" default="ompl"/>
+  <arg name="rviz_config"
+       default="$(find franka_softhand_moveit_config)/launch/moveit.rviz"/>
+
+  <!-- panda_arm_controller + qbhand_controller -->
+  <include file="$(find franka_softhand_moveit_config)/launch/ros_controllers.launch"/>
+
+  <!-- move_group -->
+  <include file="$(find franka_softhand_moveit_config)/launch/move_group.launch">
+    <arg name="pipeline" value="$(arg pipeline)"/>
+    <arg name="load_robot_description" value="false"/>
+  </include>
+
+  <!-- RViz with the MoveIt config -->
+  <include file="$(find franka_softhand_moveit_config)/launch/moveit_rviz.launch"
+           if="$(arg use_rviz)">
+    <arg name="rviz_config" value="$(arg rviz_config)"/>
+  </include>
+
+  <!-- Planning scene statica (tavolo + blocchetto base robot).
+       Il loader attende /get_planning_scene, quindi e' safe lanciarlo qui. -->
+  <arg name="load_scene" default="true"/>
+  <include file="$(find franka_softhand_scene)/launch/scene.launch"
+           if="$(arg load_scene)"/>
+
+</launch>

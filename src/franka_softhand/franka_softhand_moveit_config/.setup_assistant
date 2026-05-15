@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: franka_softhand_description
+    relative_path: urdf/franka_softhand.urdf.xacro
+    xacro_args: ""
+  SRDF:
+    relative_path: config/franka_softhand.srdf
+  CONFIG:
+    author_name: Do Won Park
+    author_email: do.park@iit.it
+    generated_timestamp: 1778768726

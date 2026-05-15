@@ -1,0 +1,29 @@
+<launch>
+  <arg name="arm_id"         default="panda"/>
+  <arg name="hand_namespace" default="qbhand"/>
+
+  <param name="robot_description"
+         command="$(find xacro)/xacro
+                  $(find franka_softhand_description)/urdf/franka_softhand.urdf.xacro
+                  arm_id:=$(arg arm_id)
+                  hand_namespace:=$(arg hand_namespace)"/>
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher"
+        type="robot_state_publisher" output="screen"/>
+
+  <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui"
+        type="joint_state_publisher_gui" output="screen">
+    <rosparam param="zeros" subst_value="true">
+      panda_joint1: 0.0
+      panda_joint2: -0.785
+      panda_joint3: 0.0
+      panda_joint4: -2.356
+      panda_joint5: 0.0
+      panda_joint6: 1.571
+      panda_joint7: 0.0
+    </rosparam>
+  </node>
+
+  <node name="rviz" pkg="rviz" type="rviz" output="screen"
+        args="-d $(find franka_softhand_description)/rviz/display.rviz"/>
+</launch>

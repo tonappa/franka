@@ -1,65 +1,71 @@
-# DOCKER COMPOSE TEMPLATE (Docker + GPU + GUI)
+# Franka Panda + qbSoftHand — ROS Noetic (Docker)
 
-Docker compose template for ROS1 or ROS2 workspace.  
-It features NVIDIA GPU acceleration, X11 GUI forwarding, audio device support, and VSCode integration.
+Workspace for controlling the Franka Panda robot with MoveIt and qbSoftHand as end effector, running on ROS Noetic inside Docker.
 
-*NOTE: only for PCs with NVIDIA GPU*
----
-
-## Directory Structure & Key Files
-
-- `run_docker.sh`: Script to build, run, and stop the Docker container - manages environment variables, X11 permissions, and hardware mappings.
-- `docker-compose.yaml`: Defines the service, GPU devices, privileges, hardware mounts, environment variables, and volumes.
-- `docker/Dockerfile`: Builds the ROS base image including Python dependencies such as MediaPipe and OpenCV; sets up user permissions.
-- `.env`: Environment variables for customizing container name, display, workspace, etc.
-- `docker/entrypoint.sh`: Entrypoint script that sources ROS setup and the workspace dynamically at container start.
+> **Note:** requires a PC with an NVIDIA GPU.
 
 ---
 
 ## Requirements
 
-- Linux host with NVIDIA drivers installed and working (`nvidia-smi` should detect your GPU).
-- Docker Engine and Docker Compose installed.
-- Active X11 graphical session on the host (typically `DISPLAY=:0`).
-- User in the `audio` and `video` groups to access hardware devices.
-- Permissions to mount devices for video, audio, and X11 forwarding.
+- Linux with NVIDIA drivers installed (`nvidia-smi` must work)
+- Docker Engine and Docker Compose installed
+- Active X11 graphical session on the host (`DISPLAY=:0`)
+- User in the `audio` and `video` groups
 
 ---
 
-## ROS Version Customization
+## 1. Clone the repository
 
-- in `run_docker.sh` (*only there!*) change ros distro and version.
-
----
-
-## Quickstart Guide
-
-### 0. Worspace Preparation
-
-Clone the repository in the desired directory
 ```bash
-git clone git@github.com:tonappa/docker_compose_template.git
+git clone --recurse-submodules -b softhand git@github.com:tonappa/franka.git
+cd franka
 ```
 
-Change the name of the repository *docker_compose_template* with a desired one.
+The `--recurse-submodules` flag automatically downloads the external packages:
+- `src/utils/qbdevice-ros` (including its nested submodules)
+- `src/utils/qbhand-ros`
 
-### 1. Build the Docker Image
+If you already cloned without `--recurse-submodules`, fetch the submodules with:
+
+```bash
+git submodule update --init --recursive
+```
+
+---
+
+## 2. Build the Docker image
 
 ```bash
 ./run_docker.sh build
 ```
 
-### 2. Run the Container with GPU and GUI Support
+This installs ROS Noetic with Franka, MoveIt, and controller packages.
 
-On your host terminal:
+---
+
+## 3. Run the container
 
 ```bash
-export DISPLAY=:0 # Make sure this matches your active X session
-xhost +local:docker # Grant X11 access to Docker containers
 ./run_docker.sh run
 ```
 
-### 3. Stop and Clean Up the Container
+The container mounts the workspace at `/home/ros/franka`, forwards the GUI via X11, and enables the NVIDIA GPU.
+
+---
+
+## 4. Build the catkin workspace
+
+Inside the container:
+
+```bash
+catkin build
+source devel/setup.bash
+```
+
+---
+
+## 5. Stop the container
 
 ```bash
 ./run_docker.sh down
@@ -67,73 +73,235 @@ xhost +local:docker # Grant X11 access to Docker containers
 
 ---
 
-## Hardware and GUI Integration
+## 6. One-time setup — serial port permissions
 
-The container mounts important devices and volumes to access host hardware and forward GUI:
+On the **host** machine (not inside the container), add your user to the `dialout` group to access the USB-RS485 converter:
 
-- GPU (NVIDIA) with full capabilities and runtime.
-- Video capture devices (`/dev/video*`), DRM devices, and sound devices mapped.
-- X11 socket (`/tmp/.X11-unix`) and `.Xauthority` for GUI forwarding.
-- PulseAudio for sound forwarding.
-- VSCode folders mounted for code editing and extensions.
-- Workspace folder mounted for development.
+```bash
+sudo gpasswd -a $USER dialout
+```
 
----
-
-## MediaPipe GPU Troubleshooting
-
-- MediaPipe GPU relies on EGL/OpenGL ES accessible inside the container.
-- If you see errors like `eglGetDisplay() returned error 0x3000`:
-  - Verify `DISPLAY` inside the container matches the host's (e.g., `:0`).
-  - Run `xhost +local:docker` *on the host* before starting the container.
-  - Confirm you have an active graphical session with access inside the container (test with `xeyes` or `glxinfo`).
-  - For headless setups, try running with a virtual display: `xvfb-run python3 mediapipe-gpu.py`.
-  - Your setup supports automatic fallback to CPU if GPU delegate is unavailable.
+Then logout and log back in (or reboot).
 
 ---
 
-## Environment Variables to Customize
+## 7. qbSoftHand usage
 
-Use `.env` and scripts to configure:
+The qbSoftHand communicates via USB-RS485 converter connected to the workstation PC. Make sure the converter is plugged in before starting the container.
 
-- Container and workspace names.
-- Display number and X11 authority files.
-- User IDs and group IDs for proper permission mapping.
-- ROS distribution and version.
-- VSCode paths and PulseAudio server.
+### Step 1 — Communication Handler (terminal 1)
+
+Must always be started first. It scans serial ports and manages communication with the device:
+
+```bash
+roslaunch qb_device_driver communication_handler.launch
+```
+
+Expected output if the hand is connected:
+```
+[CommunicationHandler] handles [/dev/ttyUSB0]
+[CommunicationHandler] has found [1] device connected
+```
+
+### Step 2 — Control node (terminal 2)
+
+```bash
+roslaunch qb_hand_control control.launch \
+  standalone:=false \
+  activate_on_initialization:=true \
+  device_id:=1 \
+  use_without_robot:=true
+```
+
+> `use_without_robot:=true` means the hand node does **not** publish its own robot description — the full robot description (Franka + SoftHand) is handled separately by your launch file.
+
+### Control modes
+
+**GUI control** — interactive slider, useful for initial testing:
+
+```bash
+roslaunch qb_hand_control control.launch \
+  standalone:=false \
+  activate_on_initialization:=true \
+  device_id:=1 \
+  use_without_robot:=true \
+  use_controller_gui:=true
+```
+
+An rqt panel opens with a slider from `0` (fully open) to `1` (fully closed).
 
 ---
 
-## Audio & VSCode Integration
+**Topic control** — send commands from terminal or code (terminal 3):
 
-- PulseAudio is forwarded for audio input/output.
-- VSCode settings and server extensions are persistently mounted to allow seamless code editing inside the container.
+```bash
+rostopic pub -1 /qbhand1/control/qbhand1_synergy_trajectory_controller/command \
+  trajectory_msgs/JointTrajectory "
+header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: ''}
+joint_names: ['qbhand1_synergy_joint']
+points:
+- positions: [1]
+  velocities: [0]
+  accelerations: [0]
+  effort: [0]
+  time_from_start: {secs: 1, nsecs: 0}"
+```
 
----
+| `positions` value | Hand state |
+|---|---|
+| `[0]` | fully open |
+| `[0.5]` | half closed |
+| `[1]` | fully closed |
 
----
-
-## Extending and Customizing
-
-- Modify `.env` for personalized session names and hardware settings.
-- Edit `docker-compose.yaml` to add extra device mounts or environment variables.
-- *Expand `Dockerfile` to install additional ROS packages or other dependencies as needed.*
-
----
-
-## Credits and Authors
-
-- [Do Won Park](https://github.com/tonappa) (Istituto Italiano di Tecnologia).
-
----
-
-## Support & Issues
-
-Check X11 permissions and device visibility carefully before reporting issues.  
-Open issues on your repository or ROS/Docker forums with detailed logs for assistance.
+`time_from_start` controls speed: larger value = slower motion.
 
 ---
 
-Enjoy developing your ROS hand teleoperation workspace with GPU acceleration and GUI support!
+**Waypoint control** — automated cyclic trajectory:
 
+```bash
+roslaunch qb_hand_control control.launch \
+  standalone:=false \
+  device_id:=1 \
+  use_without_robot:=true \
+  use_waypoints:=true \
+  robot_name:=qbhand1 \
+  robot_package:=qb_hand_control
+```
 
+The trajectory is defined in `qb_hand_control/config/qbhand1_waypoints.yaml`.
+
+### Manual motor activation
+
+If `activate_on_initialization:=false`, activate the motor manually when ready:
+
+```bash
+rosservice call /communication_handler/activate_motors "{id: 1, max_repeats: 0}"
+```
+
+---
+
+## 8. Franka + qbSoftHand integrated pipeline (MoveIt)
+
+Recommended way to bring up the **real** Franka with the qbSoftHand mounted on the
+flange and plan/execute with MoveIt. Two terminals are enough.
+
+### Terminal 1 — robot bringup (Franka + hand)
+
+```bash
+roslaunch franka_softhand_bringup franka_softhand.launch \
+    robot_ip:=<FRANKA_IP> \
+    device_id:=1
+```
+
+Defaults already set inside the launch:
+- `standalone:=true` — starts the qb communication handler
+- `activate_on_initialization:=true` — qbSoftHand motors armed at startup
+- `set_commands_async:=true` — required for the qb HW write loop at 1 ms
+- `realtime_config:=ignore` — avoids `RealtimeException` on non-PREEMPT_RT kernels.
+  If you have RT permissions/kernel set, override with `realtime_config:=enforce`.
+
+Useful overrides: `arm_id:=panda`, `use_specific_serial_port:=true serial_port_name:=/dev/ttyUSB0`.
+
+### Terminal 2 — MoveIt (controllers + move_group + RViz)
+
+```bash
+roslaunch franka_softhand_bringup franka_softhand_moveit.launch
+```
+
+Spawns `position_joint_trajectory_controller` for the arm (rigid, libfranka motion
+generator), wires MoveIt to the already-running
+`/qbhand/control/qbhand_synergy_trajectory_controller` for the hand, then starts
+`move_group` and RViz.
+
+Optional args: `use_rviz:=false`, `pipeline:=chomp`.
+
+---
+
+## Notes — manual hand commands
+
+The hand controller is `qbhand_synergy_trajectory_controller` in the `/qbhand/control/`
+namespace. Closure value range: **`0` = fully open, `1` = fully closed**.
+
+**Close:**
+```bash
+rostopic pub -1 /qbhand/control/qbhand_synergy_trajectory_controller/command \
+  trajectory_msgs/JointTrajectory "{
+    joint_names: ['qbhand_synergy_joint'],
+    points: [{positions: [1.0], time_from_start: {secs: 2}}]
+  }"
+```
+
+**Open:**
+```bash
+rostopic pub -1 /qbhand/control/qbhand_synergy_trajectory_controller/command \
+  trajectory_msgs/JointTrajectory "{
+    joint_names: ['qbhand_synergy_joint'],
+    points: [{positions: [0.0], time_from_start: {secs: 2}}]
+  }"
+```
+
+`time_from_start` controls the duration (larger = slower).
+
+GUI alternative (slider):
+```bash
+rosrun rqt_joint_trajectory_controller rqt_joint_trajectory_controller
+# select controller_manager: /qbhand/control, controller: qbhand_synergy_trajectory_controller
+```
+
+> Do not mix topic publishing and the action server on the same device.
+
+---
+
+## Notes — recovering from a Franka reflex
+
+If MoveIt aborts with `motion aborted by reflex! ["cartesian_reflex"]` or any
+subsequent command is rejected with
+`command not possible in the current mode ("Reflex")`, the robot is in error
+state and must be re-armed:
+
+```bash
+rostopic pub -1 /franka_control/error_recovery/goal \
+  franka_msgs/ErrorRecoveryActionGoal "{}"
+```
+
+After recovery the arm will re-engage and accept new motion commands.
+
+**Avoiding reflexes:**
+- In RViz set `Velocity Scaling` and `Acceleration Scaling` to `0.1–0.2` for
+  conservative motions (the SoftHand on the flange adds inertia, making the default
+  `franka_control_node.yaml` cartesian thresholds easy to trip).
+- For higher speeds, raise the cartesian/torque collision thresholds at runtime:
+
+  ```bash
+  rosservice call /franka_control/set_force_torque_collision_behavior "{
+    lower_torque_thresholds_nominal: [40,40,36,36,32,28,24],
+    upper_torque_thresholds_nominal: [40,40,36,36,32,28,24],
+    lower_force_thresholds_nominal:  [40,40,40,50,50,50],
+    upper_force_thresholds_nominal:  [40,40,40,50,50,50]
+  }"
+  ```
+
+---
+
+## Project structure
+
+```
+franka/
+├── docker/
+│   ├── Dockerfile          # ROS Noetic image with Franka + MoveIt
+│   ├── entrypoint.sh       # Automatic ROS environment sourcing
+│   └── requirements.txt    # Python dependencies (optional)
+├── src/
+│   └── utils/
+│       ├── qbdevice-ros/   # qbrobotics driver (submodule)
+│       └── qbhand-ros/     # qbSoftHand packages (submodule)
+├── docker-compose.yaml
+└── run_docker.sh
+```
+
+---
+
+## Credits
+
+- [Do Won Park](https://github.com/tonappa) — Istituto Italiano di Tecnologia

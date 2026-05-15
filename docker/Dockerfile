@@ -51,6 +51,7 @@ RUN if [ "${ROS_VERSION}" = "1" ]; then \
     ros-${ROS_DISTRO}-moveit-visual-tools \
     ros-${ROS_DISTRO}-ros-control \
     ros-${ROS_DISTRO}-ros-controllers \
+    ros-${ROS_DISTRO}-combined-robot-hw \
     ros-${ROS_DISTRO}-joint-state-publisher \
     ros-${ROS_DISTRO}-joint-state-publisher-gui \
     ros-${ROS_DISTRO}-geometric-shapes \
