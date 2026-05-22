@@ -310,10 +310,10 @@ Complete operational setup for manipulation with perception. Run the four termin
 ### Terminal 1 — robot bringup (Franka + SoftHand)
 
 ```bash
-roslaunch franka_softhand_bringup franka_softhand.launch \
-    robot_ip:=<FRANKA_IP> \
-    device_id:=1
+roslaunch franka_softhand_bringup franka_softhand.launch robot_ip:=172.16.0.103
 ```
+
+Replace `172.16.0.103` with your Franka IP if different.
 
 ### Terminal 2 — MoveIt + static planning scene
 
@@ -331,14 +331,15 @@ roslaunch franka_softhand_bringup camera_in_scene.launch
 
 Publishes the static transform `world → camera_link` and adds the D435i collision box to the MoveIt planning scene. Pose and box dimensions are read from `franka_softhand_bringup/config/camera_pose.yaml`.
 
-To adjust the camera pose (fine-tuning after calibration), edit the `camera_pose` block in that YAML and relaunch this terminal only.
+**Adjusting the camera pose**: edit the `camera_pose` block (xyz + rpy) in
+`franka_softhand_bringup/config/camera_pose.yaml`. You do **not** need to
+restart terminals 1, 2 or 4 — just kill and relaunch `camera_in_scene.launch`
+in this terminal and the new transform / collision box will be republished.
 
 ### Terminal 4 — RealSense D435i (pointcloud + aligned depth)
 
 ```bash
-roslaunch realsense2_camera rs_camera.launch \
-    enable_pointcloud:=true \
-    align_depth:=true
+roslaunch realsense2_camera rs_camera.launch align_depth:=true filters:=pointcloud
 ```
 
 > **Docker note:** do **not** add `initial_reset:=true` — it causes issues inside Docker (see known quirks).
