@@ -1,0 +1,21 @@
+<launch>
+  <!--
+    Aggiunge la RealSense alla scena: TF statica world->camera_link +
+    collision box nella planning scene MoveIt.
+
+    Pre-condizione: bringup + moveit gia' attivi (serve move_group).
+    Uso:
+      roslaunch franka_softhand_bringup camera_in_scene.launch
+
+    Posa e size del box: franka_softhand_bringup/config/camera_pose.yaml
+  -->
+
+  <node name="camera_in_scene"
+        pkg="franka_softhand_bringup"
+        type="camera_in_scene.py"
+        output="screen">
+    <rosparam command="load"
+              file="$(find franka_softhand_bringup)/config/camera_pose.yaml"/>
+  </node>
+
+</launch>

@@ -27,10 +27,14 @@
   <arg name="robot_package"   value="qb_hand"/>
   <arg name="source_list"     value="[franka_state_controller/joint_states, $(arg hand_namespace)/control/joint_states]"/>
 
-  <!-- ===== Robot description ===== -->
+  <!-- ===== Robot description =====
+       robot_description_xacro puo' essere sovrascritto da launch superiori
+       per aggiungere link extra (es. camera per hand-eye calibration). -->
+  <arg name="robot_description_xacro"
+       default="$(find franka_softhand_description)/urdf/franka_softhand.urdf.xacro"/>
   <param name="robot_description"
          command="$(find xacro)/xacro
-                  $(find franka_softhand_description)/urdf/franka_softhand.urdf.xacro
+                  $(arg robot_description_xacro)
                   arm_id:=$(arg arm_id)
                   hand_namespace:=$(arg hand_namespace)"/>
 

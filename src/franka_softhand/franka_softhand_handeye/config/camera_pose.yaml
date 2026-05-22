@@ -1,0 +1,11 @@
+# Posa iniziale di "camera_link" rispetto al frame "world".
+# E' SOLO un guess di partenza per la calibrazione hand-eye.
+# Dopo "Solve" nel plugin moveit_calibration, sostituire questi valori
+# con quelli risolti (oppure pubblicare la TF risultante come static_transform).
+camera_pose:
+  x:     0.16
+  y:     -0.35
+  z:     0.53
+  roll:  0.0
+  pitch: 0.7854   # 45 deg
+  yaw:   0.7854   # 45 deg

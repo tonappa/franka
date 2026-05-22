@@ -8,3 +8,7 @@
 	path = src/utils/franka_ros
 	url = https://github.com/frankaemika/franka_ros.git
 	branch = develop
+[submodule "src/utils/moveit_calibration"]
+	path = src/utils/moveit_calibration
+	url = https://github.com/moveit/moveit_calibration.git
+	branch = master

@@ -57,7 +57,10 @@ RUN if [ "${ROS_VERSION}" = "1" ]; then \
     ros-${ROS_DISTRO}-geometric-shapes \
     ros-${ROS_DISTRO}-rviz-visual-tools \
     ros-${ROS_DISTRO}-image-geometry \
-    ros-${ROS_DISTRO}-rviz; \
+    ros-${ROS_DISTRO}-rviz \
+    ros-${ROS_DISTRO}-handeye \
+    ros-${ROS_DISTRO}-criutils \
+    ros-${ROS_DISTRO}-baldor; \
     else \
     echo "configuring for ROS2..."; \
     apt-get update && apt-get install --no-install-recommends -y \
