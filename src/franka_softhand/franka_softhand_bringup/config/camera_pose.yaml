@@ -13,15 +13,15 @@
 
 camera_pose:
   # Posizione (m) — primi 3 numeri del campo `args`
-  x:   0.135 # 095341
-  y:  -0.31711 # -0.346711
-  z:   0.51 # 594690
+  x:   0.16 # 095341
+  y:  -0.265 # -0.346711
+  z:   0.54 # 594690
 
   # Orientamento — copia gli ULTIMI 4 numeri del campo `args` (qx qy qz qw)
-  qx: -0.151022
-  qy:  0.455932
-  qz:  0.287622
-  qw:  0.828609
+  qx: -0.156339
+  qy:  0.401208
+  qz:  0.341931
+  qw:  0.835269
 
   # Alternativa: orientamento in rpy URDF (rad). Lascia commentato se usi quat.
   # roll:  0.0
