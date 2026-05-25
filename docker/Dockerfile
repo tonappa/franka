@@ -1,6 +1,6 @@
 # recall arguments from docker-compose
-ARG ROS_DISTRO
-ARG ROS_VERSION
+ARG ROS_DISTRO=noetic
+ARG ROS_VERSION=1
 
 # image base  in base of the ARG
 FROM ros:${ROS_DISTRO}-perception
