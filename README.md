@@ -18,8 +18,8 @@ Workspace for controlling the Franka Panda robot with MoveIt and qbSoftHand as e
 ## 1. Clone the repository
 
 ```bash
-git clone --recurse-submodules -b softhand git@github.com:tonappa/franka.git
-cd franka
+git clone --recurse-submodules git@github.com:tonappa/franka-softhand-moveit.git
+cd franka-softhand-moveit
 ```
 
 The `--recurse-submodules` flag automatically downloads the external packages:
