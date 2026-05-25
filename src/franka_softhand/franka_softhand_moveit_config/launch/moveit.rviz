@@ -3,14 +3,9 @@ Panels:
     Help Height: 84
     Name: Displays
     Property Tree Widget:
-      Expanded:
-        - /MotionPlanning1
-        - /MotionPlanning1/Planning Request1
-        - /MotionPlanning1/Planned Path1
-        - /TF1
-        - /TF1/Frames1
+      Expanded: ~
       Splitter Ratio: 0.5
-    Tree Height: 326
+    Tree Height: 435
   - Class: rviz/Help
     Name: Help
   - Class: rviz/Views
@@ -360,8 +355,8 @@ Visualization Manager:
         Goal State Color: 255; 170; 127
         Interactive Marker Size: 0
         Joint Violation Color: 255; 0; 255
-        Planning Group: qbhand
-        Query Goal State: false
+        Planning Group: panda_arm
+        Query Goal State: true
         Query Start State: false
         Show Workspace: false
         Start State Alpha: 1
@@ -657,6 +652,18 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        camera_aligned_depth_to_color_frame:
+          Value: false
+        camera_color_frame:
+          Value: false
+        camera_color_optical_frame:
+          Value: false
+        camera_depth_frame:
+          Value: false
+        camera_depth_optical_frame:
+          Value: false
+        camera_link:
+          Value: true
         panda_EE:
           Value: false
         panda_K:
@@ -783,6 +790,15 @@ Visualization Manager:
       Show Names: false
       Tree:
         world:
+          camera_link:
+            camera_aligned_depth_to_color_frame:
+              camera_color_optical_frame:
+                {}
+            camera_color_frame:
+              {}
+            camera_depth_frame:
+              camera_depth_optical_frame:
+                {}
           panda_link0:
             panda_link0_sc:
               {}
@@ -860,6 +876,46 @@ Visualization Manager:
                               {}
       Update Interval: 0
       Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic: /camera/depth/color/points
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Class: rviz/Image
+      Enabled: true
+      Image Topic: /camera/color/image_raw
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Image
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -876,7 +932,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.2975707054138184
+      Distance: 1.8618066310882568
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -892,9 +948,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.32000014185905457
+      Pitch: 0.2550002634525299
       Target Frame: world
-      Yaw: 1.021790862083435
+      Yaw: 5.634974956512451
     Saved: ~
 Window Geometry:
   Displays:
@@ -904,11 +960,13 @@ Window Geometry:
     collapsed: false
   Hide Left Dock: false
   Hide Right Dock: false
+  Image:
+    collapsed: false
   MotionPlanning:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000001f0000003bdfc0200000007fb000000100044006900730070006c006100790073010000003b000001d5000000c700fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a00560069006500770073000000010c000000a4000000a000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670100000216000001e20000016900ffffff0000058a000003bd00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000200000000000001f0000003bdfc0200000007fb000000100044006900730070006c006100790073010000003b00000242000000c700fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a00560069006500770073000000010c000000a4000000a000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670100000283000001750000016900ffffff000000020000058a00000166fc0100000001fb0000000a0049006d00610067006501000001f60000058a0000007200ffffff0000058a0000025100000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
   Width: 1920
